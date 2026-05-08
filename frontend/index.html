@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aloeglow 🌿 - Premium Natural Products</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container glass">
+                <div class="logo">
+                    <h1><i class="fas fa-leaf"></i> Aloeglow</h1>
+                    <span class="tagline">Natural • Pure • Handmade</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+                    <a href="#products"><i class="fas fa-store"></i> Products</a>
+                    <a href="#about"><i class="fas fa-info-circle"></i> About</a>
+                    <a href="admin-login.html" class="admin-link"><i class="fas fa-user-shield"></i> Admin</a>
+                    <button class="dark-toggle" onclick="toggleDarkMode()">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h2>Pure Nature for Your Skin</h2>
+            <p>Discover our exclusive collection of handmade, 100% natural wellness products designed to rejuvenate your body and soul.</p>
+            <a href="#products" class="cta-button">
+                Explore Collection <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Search and Filter Controls -->
+        <div class="controls-section glass">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search" placeholder="Search for pure goodness...">
+            </div>
+            <div class="filters">
+                <select id="category">
+                    <option value="all">All Categories</option>
+                    <option value="soap">Soap</option>
+                    <option value="skincare">Skincare</option>
+                    <option value="herbal">Herbal</option>
+                    <option value="haircare">Haircare</option>
+                </select>
+                <select id="sort">
+                    <option value="newest">Newest First</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <section id="products" class="products-section">
+            <h2 class="section-title"><i class="fas fa-spa"></i> Our Collection</h2>
+            <div id="products-grid" class="products-grid">
+                <!-- Loading State -->
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Summoning products from nature's database...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about-section">
+            <h2 class="section-title"><i class="fas fa-heart"></i> The Aloeglow Promise</h2>
+            <div class="container">
+                <div class="features">
+                    <div class="feature glass">
+                        <i class="fas fa-leaf"></i>
+                        <h3>100% Natural</h3>
+                        <p>Ethically sourced ingredients with absolutely zero harmful chemicals or artificial preservatives.</p>
+                    </div>
+                    <div class="feature glass">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        <h3>Artisan Crafted</h3>
+                        <p>Each product is carefully handmade in small batches to ensure the highest quality and freshness.</p>
+                    </div>
+                    <div class="feature glass">
+                        <i class="fas fa-recycle"></i>
+                        <h3>Eco-Conscious</h3>
+                        <p>We use sustainable packaging and environmentally friendly practices in everything we do.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-leaf"></i> Aloeglow</h3>
+                    <p>Premium natural skincare and wellness products crafted for your well-being.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Get in Touch</h3>
+                    <p><i class="fas fa-phone"></i> +91 98471 01761</p>
+                    <p><i class="fas fa-envelope"></i> info@aloeglow.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Chennai, Tamil Nadu</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="#products">Collection</a>
+                    <a href="#about">Our Story</a>
+                    <a href="admin-login.html">Admin Portal</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Aloeglow. Crafted with ❤️ using MongoDB & Node.js</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Aloeglow Store</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .message {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+            animation: fadeInUp 0.3s ease;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-logo">
+                <i class="fas fa-crown"></i>
+                <span>Aloeglow Admin</span>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="dark-toggle" onclick="toggleDarkMode()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Container -->
+    <main class="container">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalProducts">0</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="soapProducts">0</div>
+                <div class="stat-label">Soap Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="skincareProducts">0</div>
+                <div class="stat-label">Skincare Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="averageRating">0.0</div>
+                <div class="stat-label">Avg. Rating</div>
+            </div>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <!-- Admin Grid -->
+        <div class="admin-grid">
+            <!-- Add / Edit Product Form -->
+            <div class="admin-card">
+                <h3 id="formTitle">Add New Product</h3>
+                <form id="productForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Product Name *</label>
+                            <input type="text" id="name" name="name" placeholder="Enter product name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price (₹) *</label>
+                            <input type="number" id="price" name="price" placeholder="Enter price" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category" name="category" required style="padding: 14px 20px;">
+                                <option value="">Select Category</option>
+                                <option value="soap">Soap</option>
+                                <option value="skincare">Skincare</option>
+                                <option value="herbal">Herbal</option>
+                                <option value="haircare">Haircare</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rating">Rating (1-5) *</label>
+                            <input type="number" id="rating" name="rating" placeholder="Enter rating" min="1" max="5" step="0.1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description (Optional)</label>
+                        <textarea id="description" name="description" placeholder="Enter product description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="whatsappLink">WhatsApp Store Link (Optional)</label>
+                        <input type="url" id="whatsappLink" name="whatsappLink" placeholder="e.g. https://wa.me/p/12345/919847101761">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="images">Product Images (Up to 5) *</label>
+                        <div class="file-input-container">
+                            <label class="file-input-label" for="images">
+                                <i class="fas fa-images"></i> Choose Images
+                            </label>
+                            <input type="file" id="images" name="images" accept="image/*" multiple required onchange="updateFileName()">
+                        </div>
+                        <div class="selected-file" id="fileName">No files selected</div>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <button type="submit" class="submit-btn" id="submitBtn" style="flex:1;">
+                            <i class="fas fa-plus-circle"></i> Add Product
+                        </button>
+                        <button type="button" class="submit-btn" id="cancelBtn" onclick="cancelEdit()" style="display:none; flex:1; background:var(--text-muted);">
+                            <i class="fas fa-times-circle"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Products List -->
+            <div class="admin-card">
+                <h3>Product List</h3>
+                <div class="products-list" id="productsList">
+                    <div style="text-align:center; padding:40px; color:var(--text-muted);">
+                        <i class="fas fa-box-open" style="font-size:3rem; margin-bottom:10px;"></i>
+                        <h4>No Products Yet</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check admin authentication
+        if (!localStorage.getItem("admin")) {
+            location.href = "admin-login.html";
+        }
+        
+        let darkMode = false;
+        if (localStorage.getItem('darkMode') === 'true') {
+            darkMode = true;
+            document.body.classList.add('dark-mode');
+            updateDarkModeButton();
+        }
+
+        let products = [];
+        let isLoading = false;
+        let editingProductId = null;
+
+        document.addEventListener('DOMContentLoaded', loadProducts);
+
+        function updateFileName() {
+            const fileInput = document.getElementById('images');
+            let text = 'No files selected';
+            if (fileInput.files.length > 0) {
+                if (fileInput.files.length === 1) {
+                    text = fileInput.files[0].name;
+                } else {
+                    text = `${fileInput.files.length} files selected`;
+                }
+            }
+            document.getElementById('fileName').textContent = text;
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const result = await response.json();
+                products = result.products || result;
+                
+                displayProducts();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showMessage('Failed to load products. Check server connection.', 'error');
+            }
+        }
+
+        function displayProducts() {
+            const productsList = document.getElementById('productsList');
+            if (!products || products.length === 0) {
+                productsList.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:var(--text-muted);">
+                        <i class="fas fa-box-open" style="font-size:3rem; margin-bottom:10px;"></i>
+                        <h4>No Products Yet</h4>
+                    </div>`;
+                return;
+            }
+            
+            let html = '';
+            products.forEach(product => {
+                html += `
+                    <div class="product-item" data-id="${product._id}">
+                        <div>
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-details">
+                                <span>₹${product.price.toFixed(2)}</span>
+                                <span>${product.category.toUpperCase()}</span>
+                                <span><i class="fas fa-star" style="color:#F59E0B"></i> ${product.rating}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button class="delete-btn" onclick="editProduct('${product._id}')" title="Edit" style="background:var(--primary); color:white;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn" onclick="deleteProduct('${product._id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            productsList.innerHTML = html;
+        }
+
+        function updateStats() {
+            document.getElementById('totalProducts').textContent = products.length;
+            document.getElementById('soapProducts').textContent = products.filter(p => p.category === 'soap').length;
+            document.getElementById('skincareProducts').textContent = products.filter(p => p.category === 'skincare').length;
+            
+            const averageRating = products.length > 0 ? (products.reduce((sum, p) => sum + p.rating, 0) / products.length).toFixed(1) : '0.0';
+            document.getElementById('averageRating').textContent = averageRating;
+        }
+
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (isLoading) return;
+            
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('submitBtn');
+            const isEditing = !!editingProductId;
+            
+            try {
+                isLoading = true;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${isEditing ? 'Updating...' : 'Adding...'}`;
+                
+                const url = isEditing ? `${API_BASE_URL}/edit-product/${editingProductId}` : `${API_BASE_URL}/add-product`;
+                const method = isEditing ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, { method, body: formData });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                showMessage(`Product ${isEditing ? 'updated' : 'added'} successfully!`, 'success');
+                
+                if (isEditing) {
+                    cancelEdit();
+                } else {
+                    this.reset();
+                    document.getElementById('fileName').textContent = 'No file selected';
+                }
+                
+                await loadProducts();
+            } catch (error) {
+                console.error('Error saving product:', error);
+                showMessage(`Failed to ${isEditing ? 'update' : 'add'} product. Please try again.`, 'error');
+            } finally {
+                isLoading = false;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Product';
+            }
+        });
+
+        async function deleteProduct(id) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/delete/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                showMessage('Product deleted successfully!', 'success');
+                products = products.filter(p => p._id !== id);
+                displayProducts();
+                updateStats();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showMessage('Failed to delete product.', 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => { messageContainer.innerHTML = ''; }, 3000);
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p._id === id);
+            if (!product) return;
+            
+            editingProductId = id;
+            document.getElementById('formTitle').textContent = 'Edit Product';
+            
+            document.getElementById('name').value = product.name || '';
+            document.getElementById('price').value = product.price || '';
+            document.getElementById('category').value = product.category || '';
+            document.getElementById('rating').value = product.rating || '';
+            document.getElementById('description').value = product.description || '';
+            document.getElementById('whatsappLink').value = product.whatsappLink || '';
+            
+            const imagesInput = document.getElementById('images');
+            imagesInput.removeAttribute('required');
+            document.getElementById('fileName').innerHTML = `<em>Leave blank to keep existing photos</em>`;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
+            document.getElementById('cancelBtn').style.display = 'block';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editingProductId = null;
+            document.getElementById('formTitle').textContent = 'Add New Product';
+            
+            document.getElementById('productForm').reset();
+            
+            const imagesInput = document.getElementById('images');
+            imagesInput.setAttribute('required', 'required');
+            document.getElementById('fileName').textContent = 'No files selected';
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Product';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            document.body.classList.toggle('dark-mode', darkMode);
+            localStorage.setItem('darkMode', darkMode);
+            updateDarkModeButton();
+        }
+
+        function updateDarkModeButton() {
+            const darkBtn = document.querySelector('.dark-toggle i');
+            if (darkBtn) darkBtn.className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function logout() {
+            localStorage.removeItem("admin");
+            location.href = "admin-login.html";
+        }
+    </script>
+</body>
+</html>
