@@ -5,6 +5,7 @@ const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const stream = require('stream');
 const Product = require("./models/Product");
+const Admin = require("./models/Admin");
 
 const app = express();
 
@@ -143,12 +144,40 @@ const seedProducts = async () => {
       await Product.insertMany(products);
       console.log("✅ Test products added to database");
     }
+    
+    const adminCount = await Admin.countDocuments();
+    if (adminCount === 0) {
+      await Admin.create({
+        username: "admin",
+        password: "aloeglow123"
+      });
+      console.log("✅ Default admin added to database");
+    }
   } catch (error) {
     console.error("❌ Error seeding products:", error);
   }
 };
 
 // API ROUTES
+
+// ADMIN LOGIN
+app.post("/admin/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // Find admin by username
+    const admin = await Admin.findOne({ username });
+    
+    if (admin && admin.password === password) {
+      res.json({ success: true, message: "Login successful" });
+    } else {
+      res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+  } catch (error) {
+    console.error("❌ Error during admin login:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+});
 
 // GET ALL PRODUCTS
 app.get("/products", async (req, res) => {

@@ -187,12 +187,7 @@
             document.body.classList.add('dark-mode');
         }
 
-        const ADMIN_CREDENTIALS = {
-            username: 'admin',
-            password: 'aloeglow123'
-        };
-
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
@@ -204,16 +199,31 @@
             loginBtn.disabled = true;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
             
-            setTimeout(() => {
-                if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
                     localStorage.setItem('admin', 'true');
                     window.location.href = 'admin.html';
                 } else {
-                    errorMessage.textContent = 'Invalid credentials. Please try again.';
+                    errorMessage.textContent = data.message || 'Invalid credentials. Please try again.';
                     loginBtn.disabled = false;
                     loginBtn.innerHTML = 'Login <i class="fas fa-arrow-right"></i>';
                 }
-            }, 800);
+            } catch (error) {
+                console.error("Login error:", error);
+                errorMessage.textContent = 'Server connection failed. Please try again later.';
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Login <i class="fas fa-arrow-right"></i>';
+            }
         });
         
         document.addEventListener('DOMContentLoaded', function() {
