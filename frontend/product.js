@@ -99,7 +99,7 @@ function displayProduct(product) {
     }
 
     const html = `
-        <div class="product-details animation: fadeInUp 0.6s ease">
+        <div class="product-details" style="animation: fadeInUp 0.6s ease">
             <!-- Product Images -->
             <div>
                 <div class="product-image-large">

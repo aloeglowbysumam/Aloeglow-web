@@ -119,7 +119,7 @@
                     <div class="form-group sizes-group">
                         <label>Product Sizes / Variants (Optional)</label>
                         <div id="sizesContainer"></div>
-                        <button type="button" class="submit-btn" style="background:var(--secondary); margin-top:10px; font-size:0.9rem;" onclick="addSizeField()">
+                        <button type="button" class="submit-btn" style="background:var(--primary-light); margin-top:10px; font-size:0.9rem;" onclick="addSizeField()">
                             <i class="fas fa-plus"></i> Add Size Variant (e.g. 10g)
                         </button>
                     </div>
@@ -242,7 +242,7 @@
                     <div class="product-item" data-id="${product._id}">
                         <div>
                             <div class="product-name">${product.name}</div>
-                            <div class="product-details">
+                            <div class="admin-product-details">
                                 <span>₹${product.price.toFixed(2)}</span>
                                 <span>${product.category.toUpperCase()}</span>
                                 <span><i class="fas fa-star" style="color:#F59E0B"></i> ${product.rating}</span>

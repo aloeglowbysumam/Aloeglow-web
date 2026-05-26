@@ -1191,7 +1191,7 @@ body.dark-mode .product-item {
     margin-bottom: 5px;
 }
 
-.product-details {
+.admin-product-details {
     display: flex;
     gap: 15px;
     color: var(--text-muted);
