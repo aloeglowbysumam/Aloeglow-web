@@ -68,7 +68,12 @@ function displayProducts(products) {
     let html = '';
     
     products.forEach((product, index) => {
-        const formattedPrice = product.price.toFixed(2);
+        let displayPrice = product.price;
+        if (product.sizes && product.sizes.length > 0) {
+            displayPrice = Math.min(...product.sizes.map(s => s.price));
+        }
+        const formattedPrice = displayPrice.toFixed(2);
+        const pricePrefix = (product.sizes && product.sizes.length > 0) ? 'From ₹' : '₹';
         const stars = createStarRating(product.rating);
         const displayName = product.name.length > 25 ? product.name.substring(0, 25) + '...' : product.name;
         
@@ -87,12 +92,12 @@ function displayProducts(products) {
                     </div>
                     <p class="description">${product.description || 'Natural handmade product'}</p>
                     <div class="price-section">
-                        <span class="price">₹${formattedPrice}</span>
+                        <span class="price">${pricePrefix}${formattedPrice}</span>
                         <div class="product-actions">
                             <button class="btn-view" onclick="viewProduct('${product._id}')" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-buy" onclick="buyProduct('${product._id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.whatsappLink || ''}')" title="Order via WhatsApp">
+                            <button class="btn-buy" onclick="buyProduct('${product._id}', '${product.name.replace(/'/g, "\\'")}', ${displayPrice}, '${product.whatsappLink || ''}')" title="Order via WhatsApp">
                                 <i class="fab fa-whatsapp"></i>
                             </button>
                         </div>

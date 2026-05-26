@@ -11,6 +11,13 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Price is required'],
     min: [0, 'Price cannot be negative']
   },
+  sizes: {
+    type: [{
+      weight: String,
+      price: Number
+    }],
+    default: []
+  },
   category: {
     type: String,
     required: [true, 'Category is required'],

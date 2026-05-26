@@ -1,6 +1,8 @@
 // product.js - Product details page JavaScript
 let currentProduct = null;
 let whatsappNumber = "919847101761";
+let selectedSize = null;
+let selectedPrice = null;
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -49,6 +51,15 @@ async function loadProductDetails(productId) {
         if (!currentProduct) {
             throw new Error('Product not found in database');
         }
+
+        // Default size selection
+        if (currentProduct.sizes && currentProduct.sizes.length > 0) {
+            selectedSize = currentProduct.sizes[0].weight;
+            selectedPrice = currentProduct.sizes[0].price;
+        } else {
+            selectedSize = null;
+            selectedPrice = currentProduct.price;
+        }
         
         // Display product
         displayProduct(currentProduct);
@@ -65,7 +76,11 @@ function displayProduct(product) {
     
     // Generate star rating
     const stars = generateStars(product.rating);
-    const formattedPrice = product.price.toFixed(2);
+    let displayPrice = product.price;
+    if (product.sizes && product.sizes.length > 0) {
+        displayPrice = product.sizes[0].price; // default to first size
+    }
+    const formattedPrice = displayPrice.toFixed(2);
     
     let galleryHtml = '';
     const allImages = [product.imageUrl];
@@ -115,9 +130,24 @@ function displayProduct(product) {
                 
                 <!-- Price -->
                 <div class="product-price">
-                    <span class="price-main">₹${formattedPrice}</span>
+                    <span class="price-main" id="displayPriceMain">₹${formattedPrice}</span>
                     <span class="price-note">Inclusive of all taxes</span>
                 </div>
+                
+                ${product.sizes && product.sizes.length > 0 ? `
+                <!-- Sizes -->
+                <div class="product-sizes" style="margin-top: 15px; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">Select Size:</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        ${product.sizes.map((size, idx) => `
+                            <label class="size-option" style="cursor: pointer; border: 1px solid var(--border-color); padding: 8px 15px; border-radius: var(--border-radius); ${idx === 0 ? 'border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: bold;' : ''}" onclick="selectSize(this, ${size.price}, '${size.weight}')">
+                                <input type="radio" name="size" value="${size.weight}" style="display:none;" ${idx === 0 ? 'checked' : ''}>
+                                ${size.weight}
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
                 
                 <!-- Description -->
                 ${product.description ? `
@@ -197,6 +227,28 @@ function generateStars(rating) {
     return starsHTML;
 }
 
+// Select size
+function selectSize(element, price, weight) {
+    selectedSize = weight;
+    selectedPrice = price;
+    
+    // Update active UI
+    document.querySelectorAll('.size-option').forEach(el => {
+        el.style.borderColor = 'var(--border-color)';
+        el.style.background = 'transparent';
+        el.style.color = 'inherit';
+        el.style.fontWeight = 'normal';
+    });
+    
+    element.style.borderColor = 'var(--primary)';
+    element.style.background = 'var(--primary-light)';
+    element.style.color = 'var(--primary)';
+    element.style.fontWeight = 'bold';
+    
+    // Update price
+    document.getElementById('displayPriceMain').textContent = '₹' + price.toFixed(2);
+}
+
 // Order on WhatsApp
 function orderOnWhatsApp() {
     if (!currentProduct) return;
@@ -209,8 +261,9 @@ function orderOnWhatsApp() {
         return;
     }
     
+    const sizeText = selectedSize ? `\n⚖️ *Size:* ${selectedSize}` : '';
     const message = encodeURIComponent(
-        `Hello Aloeglow Store! 👋\n\n*ORDER REQUEST*\n━━━━━━━━━━━━━━━━\n📦 *Product:* ${currentProduct.name}\n💰 *Price:* ₹${currentProduct.price.toFixed(2)}\n\nI would like to purchase this product. Please provide:\n1️⃣ Payment details\n2️⃣ Delivery options\n\nLooking forward to your response! 🙏`
+        `Hello Aloeglow Store! 👋\n\n*ORDER REQUEST*\n━━━━━━━━━━━━━━━━\n📦 *Product:* ${currentProduct.name}${sizeText}\n💰 *Price:* ₹${selectedPrice.toFixed(2)}\n\nI would like to purchase this product. Please provide:\n1️⃣ Payment details\n2️⃣ Delivery options\n\nLooking forward to your response! 🙏`
     );
     
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
@@ -230,7 +283,7 @@ function callForOrder() {
 function shareProduct() {
     const shareData = {
         title: `${currentProduct.name} - Aloeglow Store`,
-        text: `Check out ${currentProduct.name} for ₹${currentProduct.price.toFixed(2)} on Aloeglow Store!`,
+        text: `Check out ${currentProduct.name} for ₹${selectedPrice.toFixed(2)} on Aloeglow Store!`,
         url: window.location.href,
     };
     

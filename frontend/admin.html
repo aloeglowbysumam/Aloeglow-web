@@ -56,12 +56,12 @@
                 <div class="stat-label">Total Products</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="soapProducts">0</div>
-                <div class="stat-label">Soap Products</div>
+                <div class="stat-number" id="bathBodyProducts">0</div>
+                <div class="stat-label">Bath & Body</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="skincareProducts">0</div>
-                <div class="stat-label">Skincare Products</div>
+                <div class="stat-number" id="faceCareProducts">0</div>
+                <div class="stat-label">Face Care</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="averageRating">0.0</div>
@@ -93,10 +93,11 @@
                             <label for="category">Category *</label>
                             <select id="category" name="category" required style="padding: 14px 20px;">
                                 <option value="">Select Category</option>
-                                <option value="soap">Soap</option>
-                                <option value="skincare">Skincare</option>
-                                <option value="herbal">Herbal</option>
-                                <option value="haircare">Haircare</option>
+                                <option value="face care">Face Care</option>
+                                <option value="lip care">Lip Care</option>
+                                <option value="bath & body">Bath & Body</option>
+                                <option value="hair care">Hair Care</option>
+                                <option value="gift sets">Gift Sets</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -113,6 +114,14 @@
                     <div class="form-group">
                         <label for="whatsappLink">WhatsApp Store Link (Optional)</label>
                         <input type="url" id="whatsappLink" name="whatsappLink" placeholder="e.g. https://wa.me/p/12345/919847101761">
+                    </div>
+
+                    <div class="form-group sizes-group">
+                        <label>Product Sizes / Variants (Optional)</label>
+                        <div id="sizesContainer"></div>
+                        <button type="button" class="submit-btn" style="background:var(--secondary); margin-top:10px; font-size:0.9rem;" onclick="addSizeField()">
+                            <i class="fas fa-plus"></i> Add Size Variant (e.g. 10g)
+                        </button>
                     </div>
                     
                     <div class="form-group">
@@ -168,6 +177,24 @@
         let editingProductId = null;
 
         document.addEventListener('DOMContentLoaded', loadProducts);
+
+        function addSizeField(weight = '', price = '') {
+            const container = document.getElementById('sizesContainer');
+            
+            const div = document.createElement('div');
+            div.className = 'size-row';
+            div.style.display = 'flex';
+            div.style.gap = '10px';
+            div.style.marginBottom = '10px';
+            div.innerHTML = `
+                <input type="text" placeholder="Weight/Size (e.g. 10g)" class="size-weight" value="${weight}" style="flex:1; padding: 14px 20px; border: 1px solid var(--border-color); border-radius: var(--border-radius); background: var(--card-bg); color: var(--text);">
+                <input type="number" placeholder="Price (₹)" class="size-price" value="${price}" style="flex:1; padding: 14px 20px; border: 1px solid var(--border-color); border-radius: var(--border-radius); background: var(--card-bg); color: var(--text);">
+                <button type="button" onclick="this.parentElement.remove()" style="padding:10px 15px; background:#ef4444; color:white; border:none; border-radius:var(--border-radius); cursor:pointer;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
 
         function updateFileName() {
             const fileInput = document.getElementById('images');
@@ -237,8 +264,8 @@
 
         function updateStats() {
             document.getElementById('totalProducts').textContent = products.length;
-            document.getElementById('soapProducts').textContent = products.filter(p => p.category === 'soap').length;
-            document.getElementById('skincareProducts').textContent = products.filter(p => p.category === 'skincare').length;
+            document.getElementById('bathBodyProducts').textContent = products.filter(p => p.category === 'bath & body').length;
+            document.getElementById('faceCareProducts').textContent = products.filter(p => p.category === 'face care').length;
             
             const averageRating = products.length > 0 ? (products.reduce((sum, p) => sum + p.rating, 0) / products.length).toFixed(1) : '0.0';
             document.getElementById('averageRating').textContent = averageRating;
@@ -249,6 +276,20 @@
             if (isLoading) return;
             
             const formData = new FormData(this);
+            
+            const sizeRows = document.querySelectorAll('.size-row');
+            let sizes = [];
+            sizeRows.forEach(row => {
+                const weight = row.querySelector('.size-weight').value;
+                const price = row.querySelector('.size-price').value;
+                if (weight && price) {
+                    sizes.push({ weight, price: parseFloat(price) });
+                }
+            });
+            if (sizes.length > 0) {
+                formData.append('sizes', JSON.stringify(sizes));
+            }
+            
             const submitBtn = document.getElementById('submitBtn');
             const isEditing = !!editingProductId;
             
@@ -320,6 +361,11 @@
             document.getElementById('description').value = product.description || '';
             document.getElementById('whatsappLink').value = product.whatsappLink || '';
             
+            document.getElementById('sizesContainer').innerHTML = '';
+            if (product.sizes && product.sizes.length > 0) {
+                product.sizes.forEach(size => addSizeField(size.weight, size.price));
+            }
+            
             const imagesInput = document.getElementById('images');
             imagesInput.removeAttribute('required');
             document.getElementById('fileName').innerHTML = `<em>Leave blank to keep existing photos</em>`;
@@ -336,6 +382,7 @@
             document.getElementById('formTitle').textContent = 'Add New Product';
             
             document.getElementById('productForm').reset();
+            document.getElementById('sizesContainer').innerHTML = '';
             
             const imagesInput = document.getElementById('images');
             imagesInput.setAttribute('required', 'required');

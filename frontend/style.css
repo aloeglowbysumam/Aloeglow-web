@@ -1261,6 +1261,31 @@ body.dark-mode .product-item {
     .form-row {
         grid-template-columns: 1fr;
     }
+    .size-row {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    .product-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    .btn-whatsapp, .btn-call, .btn-share {
+        width: 100%;
+    }
 }
 
 /* --- PRODUCT GALLERY --- */

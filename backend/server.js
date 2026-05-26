@@ -208,7 +208,7 @@ app.post("/add-product", upload.array("images", 5), async (req, res) => {
   try {
     console.log("📦 Adding new product...");
     
-    const { name, price, category, rating, description, whatsappLink } = req.body;
+    const { name, price, category, rating, description, whatsappLink, sizes } = req.body;
     
     // Validation
     if (!name || !price || !category || !rating) {
@@ -236,6 +236,15 @@ app.post("/add-product", upload.array("images", 5), async (req, res) => {
       }
     }
     
+    let parsedSizes = [];
+    if (sizes) {
+      try {
+        parsedSizes = JSON.parse(sizes);
+      } catch (e) {
+        console.error("Error parsing sizes:", e);
+      }
+    }
+
     // Create product
     const product = new Product({
       name: name.trim(),
@@ -246,6 +255,7 @@ app.post("/add-product", upload.array("images", 5), async (req, res) => {
       additionalImages: additionalImages,
       description: (description || "").trim(),
       whatsappLink: (whatsappLink || "").trim(),
+      sizes: parsedSizes,
       createdAt: new Date()
     });
     
@@ -284,7 +294,7 @@ app.put("/edit-product/:id", upload.array("images", 5), async (req, res) => {
     const productId = req.params.id;
     console.log(`✏️ Editing product: ${productId}`);
     
-    const { name, price, category, rating, description, whatsappLink } = req.body;
+    const { name, price, category, rating, description, whatsappLink, sizes } = req.body;
     
     // Validation
     if (!name || !price || !category || !rating) {
@@ -318,6 +328,15 @@ app.put("/edit-product/:id", upload.array("images", 5), async (req, res) => {
       }
     }
     
+    let parsedSizes = [];
+    if (sizes) {
+      try {
+        parsedSizes = JSON.parse(sizes);
+      } catch (e) {
+        console.error("Error parsing sizes:", e);
+      }
+    }
+
     // Update fields
     existingProduct.name = name.trim();
     existingProduct.price = parseFloat(price);
@@ -327,6 +346,7 @@ app.put("/edit-product/:id", upload.array("images", 5), async (req, res) => {
     existingProduct.whatsappLink = (whatsappLink || "").trim();
     existingProduct.imageUrl = imageUrl;
     existingProduct.additionalImages = additionalImages;
+    existingProduct.sizes = parsedSizes;
     
     await existingProduct.save();
     
